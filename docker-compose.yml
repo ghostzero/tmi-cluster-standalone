@@ -1,0 +1,41 @@
+services:
+    tmi-cluster:
+        depends_on:
+            - database
+        image: own3d/laravel-docker:8.1-octane-minimal
+        restart: always
+        volumes:
+            - ./:/var/www/html
+        command: /var/www/html/entrypoint.sh
+
+    octane:
+        depends_on:
+            - tmi-cluster
+        image: own3d/laravel-docker:8.1-octane-minimal
+        restart: always
+        volumes:
+            - ./:/var/www/html
+        ports:
+            - 8000:8000
+
+    database:
+        image: mariadb
+        restart: always
+        environment:
+            MARIADB_ROOT_PASSWORD: tmi-cluster
+            MARIADB_DATABASE: tmi-cluster
+            MARIADB_USER: tmi-cluster
+            MARIADB_PASSWORD: tmi-cluster
+
+    redis:
+        image: redis:alpine
+        ports:
+            - 6379:6379
+
+    adminer:
+        image: adminer
+        restart: always
+        environment:
+            ADMINER_DEFAULT_SERVER: database
+        ports:
+            - 8080:8080
